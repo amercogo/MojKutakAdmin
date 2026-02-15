@@ -1,21 +1,35 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Brand Colors */
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-gold: var(--brand-gold);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* MOJ KUTAK BRAND COLORS */
+  --brand-blue: #1E3A8A;
+  /* Deep Blue */
+  --brand-gold: #FFD700;
+  /* Rich Gold */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --brand-blue: #60A5FA;
+    /* Lighter Blue for Dark Mode */
+    --brand-gold: #FFC000;
+    /* Slightly adjusts for contrast */
   }
 }
 
@@ -23,4 +37,36 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 
+ * GLASSMORPHISM UTILITIES 
+ * Usage: className="glass-panel"
+ */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass-panel {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 
+ * SIDEBAR DECORATION
+ * Blurred blobs for the background effect
+ */
+.sidebar-blobs {
+  background:
+    radial-gradient(circle at 10% 20%, rgba(30, 58, 138, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255, 215, 0, 0.15) 0%, transparent 40%);
+}
+
+.dark .sidebar-blobs {
+  background:
+    radial-gradient(circle at 10% 20%, rgba(96, 165, 250, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255, 192, 0, 0.1) 0%, transparent 40%);
 }
