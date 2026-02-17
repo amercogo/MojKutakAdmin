@@ -67,14 +67,14 @@ export default function AdminSidebar() {
                     <nav className="flex-1 px-4 space-y-3">
                         {/* Dashboard Link */}
                         <Link
-                            href="/"
+                            href="/pregled"
                             className={`group relative flex items-center w-full px-6 py-4 transition-all duration-300 border-l-4
-                            ${pathname === "/"
+                            ${pathname === "/pregled"
                                     ? "border-[var(--color-brand-blue)] bg-black/10 text-gray-900"
                                     : "border-transparent text-gray-700 hover:bg-black/5 hover:text-gray-900 hover:border-[var(--color-brand-blue)]"
                                 }`}
                         >
-                            <LayoutDashboard className={`mr-4 h-6 w-6 transition-transform duration-300 ${pathname === "/" ? "text-[var(--color-brand-blue)] scale-110" : "text-gray-500 group-hover:text-[var(--color-brand-blue)] group-hover:scale-110"}`} />
+                            <LayoutDashboard className={`mr-4 h-6 w-6 transition-transform duration-300 ${pathname === "/pregled" ? "text-[var(--color-brand-blue)] scale-110" : "text-gray-500 group-hover:text-[var(--color-brand-blue)] group-hover:scale-110"}`} />
                             <span className="text-sm font-extrabold tracking-wider uppercase">
                                 Pregled
                             </span>

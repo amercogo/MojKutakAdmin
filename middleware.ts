@@ -40,14 +40,19 @@ export async function updateSession(request: NextRequest) {
 
     if (
         !user &&
-        !request.nextUrl.pathname.startsWith("/auth/login") &&
-        !request.nextUrl.pathname.startsWith("/auth") // Allow access to other auth routes if needed
+        !request.nextUrl.pathname.startsWith("/auth")
     ) {
-        // no user, potentially redirect to login page
-        // For now, we will just continue, but typically you'd redirect protected routes here
-        // const url = request.nextUrl.clone()
-        // url.pathname = '/auth/login'
-        // return NextResponse.redirect(url)
+        // no user, redirect to login page
+        const url = request.nextUrl.clone();
+        url.pathname = "/auth/login";
+        return NextResponse.redirect(url);
+    }
+
+    if (user && request.nextUrl.pathname.startsWith("/auth")) {
+        // user is logged in, redirect to dashboard
+        const url = request.nextUrl.clone();
+        url.pathname = "/pregled";
+        return NextResponse.redirect(url);
     }
 
     return supabaseResponse;

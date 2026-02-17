@@ -7,7 +7,7 @@ export default function AppLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex h-screen bg-white dark:bg-neutral-900">
+        <div className="flex h-screen bg-white dark:text-gray-900">
             {/* Sidebar */}
             <AdminSidebar />
 
