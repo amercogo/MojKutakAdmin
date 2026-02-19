@@ -49,7 +49,7 @@ export default function ObjavePage() {
             setPosts(data || []);
         } catch (error) {
             console.error("Error fetching posts:", error);
-            toast.error("Failed to load posts");
+            toast.error("Neuspješno učitavanje objava");
         } finally {
             setLoading(false);
         }
@@ -71,7 +71,7 @@ export default function ObjavePage() {
     };
 
     const handleDelete = async (postId: string, imageUrl: string) => {
-        if (!window.confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
+        if (!window.confirm("Da li ste sigurni da želite obrisati ovu objavu? Ova radnja se ne može poništiti.")) {
             return;
         }
 
@@ -88,12 +88,12 @@ export default function ObjavePage() {
             const { error } = await supabase.from("posts").delete().eq("id", postId);
             if (error) throw error;
 
-            toast.success("Post deleted successfully");
+            toast.success("Objava uspješno obrisana");
             fetchPosts(); // Refresh list
 
         } catch (error: any) {
             console.error("Error deleting post:", error);
-            toast.error("Failed to delete post");
+            toast.error("Neuspješno brisanje objave");
         }
     };
 
@@ -107,10 +107,10 @@ export default function ObjavePage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                        Posts Management
+                        Upravljanje Objavama
                     </h1>
                     <p className="text-gray-500 mt-1 text-sm">
-                        Create, edit, and manage your content.
+                        Kreirajte, uredite i upravljajte svojim sadržajem.
                     </p>
                 </div>
                 <div className="flex gap-3">
@@ -119,16 +119,16 @@ export default function ObjavePage() {
                         onChange={(e) => setFilter(e.target.value)}
                         className="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block px-4 py-2.5 outline-none font-medium shadow-sm"
                     >
-                        <option value="all">All Time</option>
-                        <option value="30days">Last 30 Days</option>
-                        <option value="7days">Last 7 Days</option>
+                        <option value="all">Sve vrijeme</option>
+                        <option value="30days">Zadnjih 30 dana</option>
+                        <option value="7days">Zadnjih 7 dana</option>
                     </select>
                     <button
                         onClick={handleCreateNew}
                         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 active:scale-95"
                     >
                         <Plus className="w-5 h-5" />
-                        Create New
+                        Kreiraj Novo
                     </button>
                 </div>
             </div>
@@ -144,10 +144,10 @@ export default function ObjavePage() {
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 border-b border-gray-100">
                                 <tr>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Post</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Objava</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Created</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Kreirano</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Radnje</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -177,7 +177,7 @@ export default function ObjavePage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
-                                                Published
+                                                Objavljeno
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -191,14 +191,14 @@ export default function ObjavePage() {
                                                 <button
                                                     onClick={() => handleEdit(post)}
                                                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors tooltip"
-                                                    title="Edit Post"
+                                                    title="Uredi Objavu"
                                                 >
                                                     <Edit2 className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(post.id, post.image_url)}
                                                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete Post"
+                                                    title="Obriši Objavu"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
@@ -214,15 +214,15 @@ export default function ObjavePage() {
                         <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                             <Search className="w-8 h-8 text-gray-300" />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900">No posts found</h3>
+                        <h3 className="text-lg font-bold text-gray-900">Nema pronađenih objava</h3>
                         <p className="text-gray-500 max-w-sm mt-2 mb-6">
-                            Get started by creating your first post. It will show up here once published.
+                            Započnite kreiranjem svoje prve objave. Pojavit će se ovdje nakon objavljivanja.
                         </p>
                         <button
                             onClick={handleCreateNew}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20"
                         >
-                            Create First Post
+                            Kreiraj Prvu Objavu
                         </button>
                     </div>
                 )}

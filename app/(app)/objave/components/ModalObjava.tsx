@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
 import Image from "next/image";
 
+import RichTextEditor from "@/components/RichTextEditor";
+
 type ModalObjavaProps = {
     isOpen: boolean;
     onClose: () => void;
@@ -29,18 +31,21 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
 
     // Initialize form with data if editing
     useEffect(() => {
-        if (isOpen && initialData) {
-            setTitle(initialData.title || "");
-            setSlug(initialData.slug || "");
-            setContent(initialData.content || "");
-            setDescription(initialData.description || "");
-            setYoutubeUrl(initialData.youtube_url || "");
-            setTags(initialData.tags || []);
-            setImagePreview(initialData.image_url || null);
-            setFile(null); // Reset file selection
-        } else if (isOpen && !initialData) {
-            // Reset form for new post
-            resetForm();
+        if (isOpen) {
+            if (initialData) {
+                setTitle(initialData.title || "");
+                setSlug(initialData.slug || "");
+                // Ensure content is set for RichTextEditor
+                setContent(initialData.content || "");
+                setDescription(initialData.description || "");
+                setYoutubeUrl(initialData.youtube_url || "");
+                setTags(initialData.tags || []);
+                setImagePreview(initialData.image_url || null);
+                setFile(null); // Reset file selection
+            } else {
+                // Reset form for new post
+                resetForm();
+            }
         }
     }, [isOpen, initialData]);
 
@@ -83,11 +88,11 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
 
                 const compressedFile = await imageCompression(originalFile, options);
                 setFile(compressedFile);
-                toast.success(`Image compressed: ${(compressedFile.size / 1024).toFixed(0)}KB (was ${(originalFile.size / 1024 / 1024).toFixed(2)}MB)`);
+                toast.success(`Slika kompresovana: ${(compressedFile.size / 1024).toFixed(0)}KB (bilo ${(originalFile.size / 1024 / 1024).toFixed(2)}MB)`);
 
             } catch (error) {
                 console.error("Image compression error:", error);
-                toast.error("Failed to compress image");
+                toast.error("Neuspješna kompresija slike");
             }
         }
     };
@@ -102,11 +107,11 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
     const addTag = () => {
         if (!tagInput.trim()) return;
         if (tags.length >= 5) {
-            toast.error("Max 5 tags allowed");
+            toast.error("Maksimalno 5 tagova dozvoljeno");
             return;
         }
         if (tags.includes(tagInput.trim())) {
-            toast.error("Tag already exists");
+            toast.error("Tag već postoji");
             return;
         }
         setTags([...tags, tagInput.trim()]);
@@ -130,7 +135,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
         e.preventDefault();
 
         if (!title || !slug) {
-            toast.error("Title and Slug are required");
+            toast.error("Naslov i Slug su obavezni");
             return;
         }
 
@@ -190,13 +195,13 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
 
             if (dbError) throw dbError;
 
-            toast.success(initialData ? "Post updated!" : "Post created!");
+            toast.success(initialData ? "Objava ažurirana!" : "Objava kreirana!");
             onSuccess();
             onClose();
 
         } catch (error: any) {
             console.error("Submission error:", error);
-            toast.error(error.message || "Failed to save post");
+            toast.error(error.message || "Neuspješno spremanje objave");
         } finally {
             setLoading(false);
         }
@@ -210,10 +215,10 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                 <div className="sticky top-0 z-10 flex items-center justify-between p-6 bg-white border-b border-gray-100">
                     <div>
                         <h2 className="text-2xl font-bold text-gray-900">
-                            {initialData ? "Edit Post" : "Create New Post"}
+                            {initialData ? "Uredi Objavu" : "Kreiraj Novu Objavu"}
                         </h2>
                         <p className="text-sm text-gray-500">
-                            {initialData ? "Update your article details." : "Add a new article or video."}
+                            {initialData ? "Ažurirajte detalje članka." : "Dodajte novi članak ili video."}
                         </p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -226,12 +231,12 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                     <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">Title</label>
+                                <label className="text-sm font-semibold text-gray-700">Naslov</label>
                                 <input
                                     type="text"
                                     value={title}
                                     onChange={handleTitleChange}
-                                    placeholder="Enter post title"
+                                    placeholder="Unesite naslov objave"
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-gray-900 placeholder:text-gray-400 bg-white"
                                 />
                             </div>
@@ -248,13 +253,11 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700">Description (Short Summary)</label>
-                            <textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                rows={3}
-                                placeholder="Brief overview for SEO and cards..."
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-gray-900 placeholder:text-gray-400 resize-none bg-white"
+                            <label className="text-sm font-semibold text-gray-700">Opis (Kratak sadržaj)</label>
+                            <RichTextEditor
+                                content={description}
+                                onChange={setDescription}
+                                placeholder="Kratak pregled za SEO i kartice..."
                             />
                         </div>
                     </div>
@@ -265,7 +268,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
 
                             {/* Image Upload */}
                             <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
-                                <label className="text-sm font-semibold text-gray-700 block">Featured Image</label>
+                                <label className="text-sm font-semibold text-gray-700 block">Istaknuta Slika</label>
 
                                 {!imagePreview ? (
                                     <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 bg-white rounded-2xl cursor-pointer hover:bg-gray-50 hover:border-blue-300 transition-all group">
@@ -273,7 +276,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                                             <div className="p-3 bg-blue-50 text-blue-600 rounded-full mb-3 group-hover:scale-110 transition-transform">
                                                 <Upload className="w-6 h-6" />
                                             </div>
-                                            <p className="mb-1 text-sm text-gray-500 font-medium">Click to upload</p>
+                                            <p className="mb-1 text-sm text-gray-500 font-medium">Klikni za upload</p>
                                             <p className="text-xs text-gray-400">JPG, PNG (Max 10MB)</p>
                                         </div>
                                         <input
@@ -304,7 +307,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
 
                             {/* YouTube Link */}
                             <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">YouTube URL (Optional)</label>
+                                <label className="text-sm font-semibold text-gray-700">YouTube URL (Opcionalno)</label>
                                 <input
                                     type="url"
                                     value={youtubeUrl}
@@ -317,7 +320,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                             {/* Tags */}
                             <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
                                 <div className="flex justify-between items-center">
-                                    <label className="text-sm font-semibold text-gray-700">Tags</label>
+                                    <label className="text-sm font-semibold text-gray-700">Tagovi</label>
                                     <span className="text-xs text-gray-400">{tags.length}/5</span>
                                 </div>
 
@@ -338,7 +341,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                                         value={tagInput}
                                         onChange={(e) => setTagInput(e.target.value)}
                                         onKeyDown={handleTagKeyDown}
-                                        placeholder={tags.length >= 5 ? "Max tags reached" : "Type and press Enter"}
+                                        placeholder={tags.length >= 5 ? "Maksimalan broj tagova dosegnut" : "Upiši i pritisni Enter"}
                                         disabled={tags.length >= 5}
                                         className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm bg-white"
                                     />
@@ -357,12 +360,11 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                         {/* Right Column: Main Content */}
                         <div className="lg:col-span-2">
                             <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-2 h-full flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700">Content (Markdown / HTML)</label>
-                                <textarea
-                                    value={content}
-                                    onChange={(e) => setContent(e.target.value)}
-                                    placeholder="Write your amazing post content here..."
-                                    className="w-full flex-1 px-4 py-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-gray-900 placeholder:text-gray-400 font-mono text-sm resize-none min-h-[400px] bg-white"
+                                <label className="text-sm font-semibold text-gray-700">Sadržaj (Markdown / HTML)</label>
+                                <RichTextEditor
+                                    content={content}
+                                    onChange={setContent}
+                                    placeholder="Napišite svoj fantastičan sadržaj ovdje..."
                                 />
                             </div>
                         </div>
@@ -375,7 +377,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                             onClick={onClose}
                             className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
                         >
-                            Cancel
+                            Odustani
                         </button>
                         <button
                             type="submit"
@@ -383,7 +385,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20"
                         >
                             {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-                            {loading ? "Saving..." : (initialData ? "Update Post" : "Publish Post")}
+                            {loading ? "Spremanje..." : (initialData ? "Ažuriraj Objavu" : "Objavi")}
                         </button>
                     </div>
                 </form>
