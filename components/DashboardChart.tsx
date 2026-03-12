@@ -57,10 +57,12 @@ export default function DashboardChart() {
                 <select
                     value={days}
                     onChange={(e) => setDays(Number(e.target.value))}
-                    className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none font-medium"
+                    className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none font-medium"
                 >
-                    <option value={7}>Last 7 Days</option>
-                    <option value={30}>Last 30 Days</option>
+                    <option value={7}>Zadnjih 7 dana</option>
+                    <option value={30}>Zadnjih 30 dana</option>
+                    <option value={90}>Zadnjih 90 dana</option>
+                    <option value={365}>Zadnjih 365 dana</option>
                 </select>
             </div>
 

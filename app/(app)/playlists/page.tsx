@@ -24,7 +24,7 @@ export default function PlaylistsPage() {
         setLoading(true);
         const { playlists, error } = await getPlaylists();
         if (error) {
-            toast.error("Failed to load playlists");
+            toast.error("Neuspješno učitavanje playlista");
         } else {
             setPlaylists(playlists || []);
         }
@@ -53,7 +53,7 @@ export default function PlaylistsPage() {
 
     const handleDelete = async (playlistId: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!window.confirm("Are you sure you want to delete this playlist? The videos will remain intact, but the playlist connection will be lost forever.")) {
+        if (!window.confirm("Da li ste sigurni da želite obrisati ovu playlistu? Videi će ostati netaknuti, ali će povezanost sa playlistom biti zauvijek izgubljena.")) {
             return;
         }
 
@@ -65,9 +65,9 @@ export default function PlaylistsPage() {
 
         if (error) {
             setPlaylists(previousPlaylists);
-            toast.error("Failed to delete playlist");
+            toast.error("Neuspješno brisanje playliste");
         } else {
-            toast.success("Playlist deleted successfully");
+            toast.success("Playlista uspješno obrisana");
         }
     };
 
@@ -109,7 +109,7 @@ export default function PlaylistsPage() {
                         Playliste
                     </h1>
                     <p className="text-gray-500 mt-1 text-sm">
-                        Create beautifully curated collections of your content.
+                        Kreirajte prelijepe kolekcije vašeg sadržaja.
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -185,7 +185,7 @@ export default function PlaylistsPage() {
                                         {playlist.description}
                                     </p>
                                 ) : (
-                                    <p className="text-sm text-gray-400 mt-1.5 italic">No description provided</p>
+                                    <p className="text-sm text-gray-400 mt-1.5 italic">Opis nije pružen</p>
                                 )}
 
                                 <div className="mt-auto pt-4 flex items-center justify-between">
@@ -207,14 +207,14 @@ export default function PlaylistsPage() {
                                         <button
                                             onClick={(e) => handleEdit(playlist, e)}
                                             className="p-2 text-gray-400 hover:text-blue-600 bg-gray-50/0 hover:bg-blue-50 rounded-xl transition-colors tooltip"
-                                            title="Edit Playlist"
+                                            title="Uredi Playlistu"
                                         >
                                             <Edit2 className="w-4 h-4" />
                                         </button>
                                         <button
                                             onClick={(e) => handleDelete(playlist.id, e)}
                                             className="p-2 text-gray-400 hover:text-red-600 bg-gray-50/0 hover:bg-red-50 rounded-xl transition-colors"
-                                            title="Delete Playlist"
+                                            title="Obriši Playlistu"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -229,16 +229,16 @@ export default function PlaylistsPage() {
                     <div className="w-20 h-20 bg-blue-50 rounded-[2rem] flex items-center justify-center mb-5 rotate-3 hover:rotate-6 transition-transform">
                         <Library className="w-10 h-10 text-blue-500" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">No playlists found</h3>
+                    <h3 className="text-xl font-bold text-gray-900">Nema pronađenih playlista</h3>
                     <p className="text-gray-500 max-w-sm mt-3 mb-8">
-                        Get started by grouping your awesome posts into categorized playlists.
+                        Započnite grupisanjem vaših fantastičnih objava u kategorizovane playliste.
                     </p>
                     <button
                         onClick={handleCreateNew}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0"
                     >
                         <Plus className="w-5 h-5" />
-                        Create First Playlist
+                        Kreiraj Prvu Playlistu
                     </button>
                 </div>
             )}

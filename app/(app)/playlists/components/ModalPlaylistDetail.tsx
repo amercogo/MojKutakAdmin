@@ -37,7 +37,7 @@ export default function ModalPlaylistDetail({
         setLoadingVideos(true);
         const { videos, error } = await getPlaylistVideos(playlist.id);
         if (error) {
-            toast.error("Failed to load playlist videos");
+            toast.error("Neuspješno učitavanje videa iz playliste");
         } else {
             setVideos(videos || []);
         }
@@ -61,7 +61,7 @@ export default function ModalPlaylistDetail({
             setLoadingSearch(true);
             const { posts, error } = await searchPostsNotInPlaylist(playlist.id, searchQuery);
             if (error) {
-                toast.error("Failed to search posts");
+                toast.error("Neuspješno pretraživanje objava");
             } else {
                 setSearchResults(posts || []);
             }
@@ -83,9 +83,9 @@ export default function ModalPlaylistDetail({
 
         if (error) {
             setVideos(previousVideos);
-            toast.error("Failed to remove video");
+            toast.error("Neuspješno uklanjanje videa");
         } else {
-            toast.success("Video removed");
+            toast.success("Video uklonjen");
             onUpdate();
         }
 
@@ -102,9 +102,9 @@ export default function ModalPlaylistDetail({
         const { error } = await addVideoToPlaylist(playlist.id, postId, videos.length);
 
         if (error) {
-            toast.error("Failed to add video");
+            toast.error("Neuspješno dodavanje videa");
         } else {
-            toast.success("Video added to playlist");
+            toast.success("Video dodan u playlistu");
             // Remove from search results
             setSearchResults(searchResults.filter(p => p.id !== postId));
             // Reload videos to get the new list with relationships
@@ -143,7 +143,7 @@ export default function ModalPlaylistDetail({
                                     <h2 className="text-xl font-bold text-gray-900 line-clamp-1">
                                         {playlist.title}
                                     </h2>
-                                    <p className="text-sm text-gray-500 mt-1">Manage videos in this playlist</p>
+                                    <p className="text-sm text-gray-500 mt-1">Upravljajte videima u ovoj playlisti</p>
                                 </div>
                                 <button
                                     onClick={onClose}
@@ -159,13 +159,13 @@ export default function ModalPlaylistDetail({
                                     onClick={() => setIsSearching(false)}
                                     className={`pb-3 text-sm font-bold border-b-2 transition-colors ${!isSearching ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
                                 >
-                                    Saved Videos ({videos.length})
+                                    Sačuvani Videi ({videos.length})
                                 </button>
                                 <button
                                     onClick={() => setIsSearching(true)}
                                     className={`pb-3 text-sm font-bold border-b-2 transition-colors ${isSearching ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
                                 >
-                                    Add New Videos
+                                    Dodaj Nove Videe
                                 </button>
                             </div>
                         </div>
@@ -184,15 +184,15 @@ export default function ModalPlaylistDetail({
                                             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                                 <Video className="w-8 h-8 text-gray-400" />
                                             </div>
-                                            <h3 className="text-lg font-bold text-gray-900">Empty Playlist</h3>
+                                            <h3 className="text-lg font-bold text-gray-900">Prazna Playlista</h3>
                                             <p className="text-gray-500 mt-2 max-w-sm mx-auto mb-6">
-                                                This playlist doesnt have any videos yet. Go to the Add New Videos tab to search and add some.
+                                                Ova playlista još nema nijedan video. Idite na tab Dodaj Nove Videe da pretražite i dodate neke.
                                             </p>
                                             <button
                                                 onClick={() => setIsSearching(true)}
                                                 className="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition-colors"
                                             >
-                                                Start Adding
+                                                Počni Dodavati
                                             </button>
                                         </div>
                                     ) : (
@@ -218,7 +218,7 @@ export default function ModalPlaylistDetail({
                                                         </div>
                                                         <button
                                                             onClick={() => handleRemoveVideo(item.post_id)}
-                                                            title="Remove from playlist"
+                                                            title="Ukloni iz playliste"
                                                             className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-colors flex-shrink-0"
                                                         >
                                                             {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
@@ -238,7 +238,7 @@ export default function ModalPlaylistDetail({
                                             type="text"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder="Search posts to add..."
+                                            placeholder="Pretraži objave za dodavanje..."
                                             className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all font-medium text-sm"
                                         />
                                     </div>
@@ -251,7 +251,7 @@ export default function ModalPlaylistDetail({
                                         ) : searchResults.length === 0 ? (
                                             <div className="text-center py-10">
                                                 <p className="text-gray-500 text-sm font-medium">
-                                                    {searchQuery ? "No posts found matching your search." : "Type to start searching posts."}
+                                                    {searchQuery ? "Nema objava koje odgovaraju vašoj pretrazi." : "Kucajte da započnete pretragu objava."}
                                                 </p>
                                             </div>
                                         ) : (
@@ -276,11 +276,11 @@ export default function ModalPlaylistDetail({
                                                             </div>
                                                             <button
                                                                 onClick={() => handleAddVideo(post.id)}
-                                                                title="Add to playlist"
+                                                                title="Dodaj u playlistu"
                                                                 className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-lg transition-colors flex items-center gap-1.5 text-xs font-bold"
                                                             >
                                                                 {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                                                                Add
+                                                                Dodaj
                                                             </button>
                                                         </div>
                                                     );

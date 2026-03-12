@@ -73,7 +73,7 @@ export default function ModalPlaylist({
             const newTag = tagsInput.trim().toLowerCase();
             if (newTag && !tags.includes(newTag)) {
                 if (tags.length >= 5) {
-                    toast.error("You can only add up to 5 tags");
+                    toast.error("Možete dodati najviše 5 tagova");
                     return;
                 }
                 setTags([...tags, newTag]);
@@ -91,12 +91,12 @@ export default function ModalPlaylist({
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
-            toast.error("Please upload an image file");
+            toast.error("Molimo pošaljite slikovnu datoteku");
             return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            toast.error("Image size should be less than 5MB");
+            toast.error("Veličina slike treba biti manja od 5MB");
             return;
         }
 
@@ -111,7 +111,7 @@ export default function ModalPlaylist({
             setImagePreview(URL.createObjectURL(compressedFile));
         } catch (error) {
             console.error("Error compressing image:", error);
-            toast.error("Failed to process image");
+            toast.error("Neuspješna obrada slike");
         }
     };
 
@@ -134,7 +134,7 @@ export default function ModalPlaylist({
             return publicUrl;
         } catch (error) {
             console.error("Error uploading image:", error);
-            throw new Error("Failed to upload image");
+            throw new Error("Neuspješno slanje slike");
         }
     };
 
@@ -142,7 +142,7 @@ export default function ModalPlaylist({
         e.preventDefault();
 
         if (!title || !slug) {
-            toast.error("Please fill in required fields");
+            toast.error("Molimo popunite obavezna polja");
             return;
         }
 
@@ -165,7 +165,7 @@ export default function ModalPlaylist({
                     finalImageUrl
                 );
                 if (error) throw new Error(error);
-                toast.success("Playlist updated successfully");
+                toast.success("Playlista uspješno ažurirana");
             } else {
                 const { error } = await createPlaylist(
                     title,
@@ -175,14 +175,14 @@ export default function ModalPlaylist({
                     finalImageUrl
                 );
                 if (error) throw new Error(error);
-                toast.success("Playlist created successfully");
+                toast.success("Playlista uspješno kreirana");
             }
 
             onSuccess();
             onClose();
         } catch (error: any) {
             console.error("Error saving playlist:", error);
-            toast.error(error.message || "Failed to save playlist");
+            toast.error(error.message || "Neuspješno spremanje playliste");
         } finally {
             setIsSubmitting(false);
         }
@@ -212,7 +212,7 @@ export default function ModalPlaylist({
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                             <h2 className="text-xl font-bold text-gray-900">
-                                {initialData ? "Edit Playlist" : "Create New Playlist"}
+                                {initialData ? "Uredi Playlistu" : "Kreiraj Novu Playlistu"}
                             </h2>
                             <button
                                 onClick={onClose}
@@ -230,13 +230,13 @@ export default function ModalPlaylist({
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-bold text-gray-700">
-                                            Title <span className="text-red-500">*</span>
+                                            Naslov <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="text"
                                             value={title}
                                             onChange={handleTitleChange}
-                                            placeholder="e.g. React Course"
+                                            placeholder="npr. React Kurs"
                                             className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-sm font-medium"
                                             required
                                             disabled={isSubmitting}
@@ -261,12 +261,12 @@ export default function ModalPlaylist({
                                 {/* Description */}
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-bold text-gray-700">
-                                        Description
+                                        Opis
                                     </label>
                                     <textarea
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
-                                        placeholder="Add a short description about this playlist..."
+                                        placeholder="Dodajte kratak opis o ovoj playlisti..."
                                         rows={3}
                                         className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-sm resize-none"
                                         disabled={isSubmitting}
@@ -276,7 +276,7 @@ export default function ModalPlaylist({
                                 {/* Tags */}
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-bold text-gray-700 flex justify-between">
-                                        <span>Tags (up to 5)</span>
+                                        <span>Tagovi (do 5)</span>
                                         <span className="text-gray-400 font-normal">{tags.length}/5</span>
                                     </label>
                                     <div className="w-full min-h-[46px] p-1.5 rounded-xl border border-gray-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all flex flex-wrap gap-2 bg-white">
@@ -301,7 +301,7 @@ export default function ModalPlaylist({
                                             value={tagsInput}
                                             onChange={(e) => setTagsInput(e.target.value)}
                                             onKeyDown={handleKeyDown}
-                                            placeholder={tags.length < 5 ? "Type and press Enter..." : "Max tags reached"}
+                                            placeholder={tags.length < 5 ? "Upiši i pritisni Enter..." : "Maksimalan broj tagova dostignut"}
                                             className="flex-1 min-w-[120px] px-2 py-1 outline-none text-sm bg-transparent"
                                             disabled={tags.length >= 5 || isSubmitting}
                                         />
@@ -311,7 +311,7 @@ export default function ModalPlaylist({
                                 {/* Thumbnail */}
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-bold text-gray-700">
-                                        Thumbnail
+                                        Istaknuta Slika
                                     </label>
 
                                     <input
@@ -366,10 +366,10 @@ export default function ModalPlaylist({
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-sm font-medium text-gray-700">
-                                                    Click to upload thumbnail
+                                                    Klikni za upload slike
                                                 </p>
                                                 <p className="text-xs text-gray-500 mt-1">
-                                                    PNG, JPG or WebP (max. 5MB)
+                                                    PNG, JPG ili WebP (max. 5MB)
                                                 </p>
                                             </div>
                                         </button>
@@ -386,7 +386,7 @@ export default function ModalPlaylist({
                                 disabled={isSubmitting}
                                 className="px-5 py-2.5 rounded-xl font-bold text-gray-700 hover:bg-gray-200 transition-colors disabled:opacity-50"
                             >
-                                Cancel
+                                Odustani
                             </button>
                             <button
                                 type="submit"
@@ -395,7 +395,7 @@ export default function ModalPlaylist({
                                 className="px-6 py-2.5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
                             >
                                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                                {initialData ? "Save Changes" : "Create Playlist"}
+                                {initialData ? "Sačuvaj Promjene" : "Kreiraj Playlistu"}
                             </button>
                         </div>
                     </motion.div>
