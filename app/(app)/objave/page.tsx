@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Plus, Search, Edit2, Trash2, Calendar, Eye, Heart, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import ModalObjava from "./components/ModalObjava";
 
 // Formatting helper
@@ -23,6 +24,7 @@ export default function ObjavePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPost, setEditingPost] = useState<any | null>(null);
     const [filter, setFilter] = useState("all"); // 'all', '7days', '30days'
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Fetch Posts
     const fetchPosts = async () => {
@@ -30,7 +32,14 @@ export default function ObjavePage() {
         try {
             let query = supabase
                 .from("posts")
-                .select("*")
+                .select(`
+                    *,
+                    playlist_posts (
+                        playlists (
+                            title
+                        )
+                    )
+                `)
                 .order("created_at", { ascending: false });
 
             if (filter === "7days") {
@@ -58,6 +67,24 @@ export default function ObjavePage() {
     useEffect(() => {
         fetchPosts();
     }, [filter]);
+
+    const filteredPosts = posts.filter((post) => {
+        const query = searchQuery.toLowerCase();
+        if (!query) return true;
+
+        const titleMatch = post.title?.toLowerCase().includes(query);
+        const descMatch = post.description?.toLowerCase().includes(query);
+        const slugMatch = post.slug?.toLowerCase().includes(query);
+
+        let playlistMatch = false;
+        if (post.playlist_posts && Array.isArray(post.playlist_posts)) {
+            playlistMatch = post.playlist_posts.some((pp: any) =>
+                pp.playlists?.title?.toLowerCase().includes(query)
+            );
+        }
+
+        return titleMatch || descMatch || slugMatch || playlistMatch;
+    });
 
     // Handlers
     const handleCreateNew = () => {
@@ -113,7 +140,14 @@ export default function ObjavePage() {
                         Kreirajte, uredite i upravljajte svojim sadržajem.
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <input
+                        type="text"
+                        placeholder="Pretraži objave ili playliste..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block px-4 py-2.5 outline-none font-medium shadow-sm w-full sm:w-64"
+                    />
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
@@ -125,7 +159,7 @@ export default function ObjavePage() {
                     </select>
                     <button
                         onClick={handleCreateNew}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+                        className="flex items-center justify-center sm:justify-start gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 active:scale-95 whitespace-nowrap"
                     >
                         <Plus className="w-5 h-5" />
                         Kreiraj Novo
@@ -139,7 +173,7 @@ export default function ObjavePage() {
                     <div className="flex items-center justify-center h-64">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     </div>
-                ) : posts.length > 0 ? (
+                ) : filteredPosts.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 border-b border-gray-100">
@@ -151,61 +185,70 @@ export default function ObjavePage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                {posts.map((post) => (
-                                    <tr key={post.id} className="hover:bg-gray-50/50 transition-colors group">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="relative w-16 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
-                                                    {post.image_url ? (
-                                                        <Image
-                                                            src={post.image_url}
-                                                            alt={post.title}
-                                                            fill
-                                                            className="object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                            <ImageIcon className="w-6 h-6" />
-                                                        </div>
-                                                    )}
+                                <AnimatePresence mode="popLayout">
+                                    {filteredPosts.map((post) => (
+                                        <motion.tr
+                                            key={post.id}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="hover:bg-gray-50/50 transition-colors group"
+                                        >
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="relative w-16 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                                                        {post.image_url ? (
+                                                            <Image
+                                                                src={post.image_url}
+                                                                alt={post.title}
+                                                                fill
+                                                                className="object-cover"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                                <ImageIcon className="w-6 h-6" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-bold text-gray-900 truncate max-w-xs">{post.title}</p>
+                                                        <p className="text-xs text-gray-500 font-mono truncate max-w-xs">/{post.slug}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-sm font-bold text-gray-900 truncate max-w-xs">{post.title}</p>
-                                                    <p className="text-xs text-gray-500 font-mono truncate max-w-xs">/{post.slug}</p>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                                                    Objavljeno
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center text-sm text-gray-500">
+                                                    <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                                                    {formatDate(post.created_at)}
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
-                                                Objavljeno
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center text-sm text-gray-500">
-                                                <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                                                {formatDate(post.created_at)}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    onClick={() => handleEdit(post)}
-                                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors tooltip"
-                                                    title="Uredi Objavu"
-                                                >
-                                                    <Edit2 className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(post.id, post.image_url)}
-                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Obriši Objavu"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => handleEdit(post)}
+                                                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors tooltip"
+                                                        title="Uredi Objavu"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(post.id, post.image_url)}
+                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        title="Obriši Objavu"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </motion.tr>
+                                    ))}
+                                </AnimatePresence>
                             </tbody>
                         </table>
                     </div>

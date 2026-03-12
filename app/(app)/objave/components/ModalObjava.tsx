@@ -6,6 +6,7 @@ import { Loader2, Image as ImageIcon, X, Plus, Upload } from "lucide-react";
 import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 import RichTextEditor from "@/components/RichTextEditor";
 
@@ -207,189 +208,207 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
         }
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
-            <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in duration-200">
-                <div className="sticky top-0 z-10 flex items-center justify-between p-6 bg-white border-b border-gray-100">
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-900">
-                            {initialData ? "Uredi Objavu" : "Kreiraj Novu Objavu"}
-                        </h2>
-                        <p className="text-sm text-gray-500">
-                            {initialData ? "Ažurirajte detalje članka." : "Dodajte novi članak ili video."}
-                        </p>
-                    </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                        <X className="w-6 h-6 text-gray-500" />
-                    </button>
-                </div>
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={!loading ? onClose : undefined}
+                    />
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                    {/* Reuse Form Layout */}
-                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">Naslov</label>
-                                <input
-                                    type="text"
-                                    value={title}
-                                    onChange={handleTitleChange}
-                                    placeholder="Unesite naslov objave"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-gray-900 placeholder:text-gray-400 bg-white"
-                                />
+                    {/* Modal */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        transition={{ type: "spring", duration: 0.5 }}
+                        className="relative bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl z-10"
+                    >
+                        <div className="sticky top-0 z-10 flex items-center justify-between p-6 bg-white border-b border-gray-100">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    {initialData ? "Uredi Objavu" : "Kreiraj Novu Objavu"}
+                                </h2>
+                                <p className="text-sm text-gray-500">
+                                    {initialData ? "Ažurirajte detalje članka." : "Dodajte novi članak ili video."}
+                                </p>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">Slug (URL)</label>
-                                <input
-                                    type="text"
-                                    value={slug}
-                                    onChange={(e) => setSlug(e.target.value)}
-                                    placeholder="post-slug-url"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-600 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-mono"
-                                />
-                            </div>
+                            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                                <X className="w-6 h-6 text-gray-500" />
+                            </button>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700">Opis (Kratak sadržaj)</label>
-                            <RichTextEditor
-                                content={description}
-                                onChange={setDescription}
-                                placeholder="Kratak pregled za SEO i kartice..."
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Left Column: Image & YouTube */}
-                        <div className="lg:col-span-1 space-y-6">
-
-                            {/* Image Upload */}
-                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
-                                <label className="text-sm font-semibold text-gray-700 block">Istaknuta Slika</label>
-
-                                {!imagePreview ? (
-                                    <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 bg-white rounded-2xl cursor-pointer hover:bg-gray-50 hover:border-blue-300 transition-all group">
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <div className="p-3 bg-blue-50 text-blue-600 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                                                <Upload className="w-6 h-6" />
-                                            </div>
-                                            <p className="mb-1 text-sm text-gray-500 font-medium">Klikni za upload</p>
-                                            <p className="text-xs text-gray-400">JPG, PNG (Max 10MB)</p>
-                                        </div>
+                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                            {/* Reuse Form Layout */}
+                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-gray-700">Naslov</label>
                                         <input
-                                            type="file"
-                                            className="hidden"
-                                            accept="image/*"
-                                            onChange={handleImageChange}
+                                            type="text"
+                                            value={title}
+                                            onChange={handleTitleChange}
+                                            placeholder="Unesite naslov objave"
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-gray-900 placeholder:text-gray-400 bg-white"
                                         />
-                                    </label>
-                                ) : (
-                                    <div className="relative w-full h-48 rounded-2xl overflow-hidden border border-gray-200 group bg-white">
-                                        <Image
-                                            src={imagePreview}
-                                            alt="Preview"
-                                            fill
-                                            className="object-cover"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={removeImage}
-                                            className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-full shadow-sm hover:bg-white transition-all opacity-0 group-hover:opacity-100"
-                                        >
-                                            <X className="w-4 h-4" />
-                                        </button>
                                     </div>
-                                )}
-                            </div>
-
-                            {/* YouTube Link */}
-                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">YouTube URL (Opcionalno)</label>
-                                <input
-                                    type="url"
-                                    value={youtubeUrl}
-                                    onChange={(e) => setYoutubeUrl(e.target.value)}
-                                    placeholder="https://youtube.com/watch?v=..."
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm bg-white"
-                                />
-                            </div>
-
-                            {/* Tags */}
-                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-sm font-semibold text-gray-700">Tagovi</label>
-                                    <span className="text-xs text-gray-400">{tags.length}/5</span>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-gray-700">Slug (URL)</label>
+                                        <input
+                                            type="text"
+                                            value={slug}
+                                            onChange={(e) => setSlug(e.target.value)}
+                                            placeholder="post-slug-url"
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-600 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-mono"
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2">
-                                    {tags.map(tag => (
-                                        <div key={tag} className="flex items-center gap-1 bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium shadow-sm">
-                                            <span>#{tag}</span>
-                                            <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 ml-1">
-                                                <X className="w-3 h-3" />
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-gray-700">Opis (Kratak sadržaj)</label>
+                                    <RichTextEditor
+                                        content={description}
+                                        onChange={setDescription}
+                                        placeholder="Kratak pregled za SEO i kartice..."
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Left Column: Image & YouTube */}
+                                <div className="lg:col-span-1 space-y-6">
+
+                                    {/* Image Upload */}
+                                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
+                                        <label className="text-sm font-semibold text-gray-700 block">Istaknuta Slika</label>
+
+                                        {!imagePreview ? (
+                                            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 bg-white rounded-2xl cursor-pointer hover:bg-gray-50 hover:border-blue-300 transition-all group">
+                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    <div className="p-3 bg-blue-50 text-blue-600 rounded-full mb-3 group-hover:scale-110 transition-transform">
+                                                        <Upload className="w-6 h-6" />
+                                                    </div>
+                                                    <p className="mb-1 text-sm text-gray-500 font-medium">Klikni za upload</p>
+                                                    <p className="text-xs text-gray-400">JPG, PNG (Max 10MB)</p>
+                                                </div>
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={handleImageChange}
+                                                />
+                                            </label>
+                                        ) : (
+                                            <div className="relative w-full h-48 rounded-2xl overflow-hidden border border-gray-200 group bg-white">
+                                                <Image
+                                                    src={imagePreview}
+                                                    alt="Preview"
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={removeImage}
+                                                    className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-full shadow-sm hover:bg-white transition-all opacity-0 group-hover:opacity-100"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* YouTube Link */}
+                                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-2">
+                                        <label className="text-sm font-semibold text-gray-700">YouTube URL (Opcionalno)</label>
+                                        <input
+                                            type="url"
+                                            value={youtubeUrl}
+                                            onChange={(e) => setYoutubeUrl(e.target.value)}
+                                            placeholder="https://youtube.com/watch?v=..."
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm bg-white"
+                                        />
+                                    </div>
+
+                                    {/* Tags */}
+                                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <label className="text-sm font-semibold text-gray-700">Tagovi</label>
+                                            <span className="text-xs text-gray-400">{tags.length}/5</span>
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {tags.map(tag => (
+                                                <div key={tag} className="flex items-center gap-1 bg-white border border-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium shadow-sm">
+                                                    <span>#{tag}</span>
+                                                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 ml-1">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={tagInput}
+                                                onChange={(e) => setTagInput(e.target.value)}
+                                                onKeyDown={handleTagKeyDown}
+                                                placeholder={tags.length >= 5 ? "Maksimalan broj tagova dosegnut" : "Upiši i pritisni Enter"}
+                                                disabled={tags.length >= 5}
+                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm bg-white"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={addTag}
+                                                disabled={!tagInput || tags.length >= 5}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors disabled:opacity-50"
+                                            >
+                                                <Plus className="w-4 h-4" />
                                             </button>
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
 
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        value={tagInput}
-                                        onChange={(e) => setTagInput(e.target.value)}
-                                        onKeyDown={handleTagKeyDown}
-                                        placeholder={tags.length >= 5 ? "Maksimalan broj tagova dosegnut" : "Upiši i pritisni Enter"}
-                                        disabled={tags.length >= 5}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm bg-white"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={addTag}
-                                        disabled={!tagInput || tags.length >= 5}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors disabled:opacity-50"
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                    </button>
+                                {/* Right Column: Main Content */}
+                                <div className="lg:col-span-2">
+                                    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-2 h-full flex flex-col">
+                                        <label className="text-sm font-semibold text-gray-700">Sadržaj (Markdown / HTML)</label>
+                                        <RichTextEditor
+                                            content={content}
+                                            onChange={setContent}
+                                            placeholder="Napišite svoj fantastičan sadržaj ovdje..."
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Right Column: Main Content */}
-                        <div className="lg:col-span-2">
-                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-2 h-full flex flex-col">
-                                <label className="text-sm font-semibold text-gray-700">Sadržaj (Markdown / HTML)</label>
-                                <RichTextEditor
-                                    content={content}
-                                    onChange={setContent}
-                                    placeholder="Napišite svoj fantastičan sadržaj ovdje..."
-                                />
+                            {/* Actions */}
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                                >
+                                    Odustani
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20"
+                                >
+                                    {loading && <Loader2 className="w-5 h-5 animate-spin" />}
+                                    {loading ? "Spremanje..." : (initialData ? "Ažuriraj Objavu" : "Objavi")}
+                                </button>
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
-                        >
-                            Odustani
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20"
-                        >
-                            {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-                            {loading ? "Spremanje..." : (initialData ? "Ažuriraj Objavu" : "Objavi")}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                        </form>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
     );
 }

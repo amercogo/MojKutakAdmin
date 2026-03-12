@@ -12,6 +12,7 @@ import ModalPlaylistDetail from "./components/ModalPlaylistDetail";
 export default function PlaylistsPage() {
     const [playlists, setPlaylists] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingPlaylist, setEditingPlaylist] = useState<any | null>(null);
@@ -33,6 +34,11 @@ export default function PlaylistsPage() {
     useEffect(() => {
         loadPlaylists();
     }, []);
+
+    const filteredPlaylists = playlists.filter(playlist =>
+        playlist.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (playlist.description && playlist.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
 
     const handleCreateNew = () => {
         setEditingPlaylist(null);
@@ -106,10 +112,17 @@ export default function PlaylistsPage() {
                         Create beautifully curated collections of your content.
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <input
+                        type="text"
+                        placeholder="Pretraži playliste..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block px-4 py-2.5 outline-none font-medium shadow-sm w-full sm:w-64"
+                    />
                     <button
                         onClick={handleCreateNew}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+                        className="flex items-center justify-center sm:justify-start gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 active:scale-95 whitespace-nowrap"
                     >
                         <Plus className="w-5 h-5" />
                         Nova Playlista
@@ -129,7 +142,7 @@ export default function PlaylistsPage() {
                     animate="show"
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                 >
-                    {playlists.map((playlist) => (
+                    {filteredPlaylists.map((playlist) => (
                         <motion.div
                             key={playlist.id}
                             variants={itemVariants}
