@@ -59,7 +59,7 @@ export default async function DashboardPage() {
                     </h1>
                     <p className="text-gray-500 mt-1 flex items-center gap-2 text-sm">
                         <Calendar className="w-4 h-4" />
-                        Last updated: {new Date().toLocaleTimeString()}
+                        Zadnje ažuriranje: {new Date().toLocaleTimeString()}
                     </p>
                 </div>
             </div>
@@ -67,21 +67,21 @@ export default async function DashboardPage() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatsCard
-                    title="Total Views"
+                    title="Ukupno Pregleda"
                     value={formatNumber(totalViews)}
                     icon={Eye}
                     color="text-blue-600"
                     bgColor="bg-blue-50"
                 />
                 <StatsCard
-                    title="Total Likes"
+                    title="Ukupno Lajkova"
                     value={formatNumber(totalLikes)}
                     icon={Heart}
                     color="text-rose-600"
                     bgColor="bg-rose-50"
                 />
                 <StatsCard
-                    title="Total Posts"
+                    title="Ukupno Objava"
                     value={formatNumber(totalPosts)}
                     icon={FileText}
                     color="text-amber-600"
@@ -100,9 +100,9 @@ export default async function DashboardPage() {
                 <div className="lg:col-span-1">
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden h-full">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-gray-900">Top Posts</h3>
+                            <h3 className="text-xl font-bold text-gray-900">Najbolje Objave</h3>
                             <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-wider">
-                                All Time
+                                Sve vrijeme
                             </span>
                         </div>
                         <div className="p-0">
@@ -123,7 +123,7 @@ export default async function DashboardPage() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
-                                                    {post.posts?.title || "Untitled Post"}
+                                                    {post.posts?.title || "Objava bez naslova"}
                                                 </p>
                                                 <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
                                                     <span className="flex items-center gap-1">
@@ -139,7 +139,7 @@ export default async function DashboardPage() {
                                 </div>
                             ) : (
                                 <div className="p-8 text-center text-gray-400 text-sm">
-                                    No posts found.
+                                    Nema pronađenih objava.
                                 </div>
                             )}
                         </div>
@@ -166,7 +166,7 @@ function StatsCard({ title, value, icon: Icon, color, bgColor }: any) {
             <div className="mt-4 flex items-center text-sm text-green-600 font-medium">
                 <ArrowUp className="w-4 h-4 mr-1" />
                 <span>+12%</span>
-                <span className="text-gray-400 font-normal ml-2">from last month</span>
+                <span className="text-gray-400 font-normal ml-2">od prošlog mjeseca</span>
             </div>
         </div>
     );

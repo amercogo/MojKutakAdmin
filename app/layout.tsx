@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Ubuntu } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const ubuntu = Ubuntu({
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body
         className={`${ubuntu.variable} antialiased font-sans`}
       >
+        <Toaster position="top-right" richColors />
         {children}
       </body>
     </html>
