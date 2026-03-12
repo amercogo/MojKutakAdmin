@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { LayoutDashboard, LogOut, FileText } from "lucide-react";
+import { LayoutDashboard, LogOut, FileText, Library } from "lucide-react";
 import Image from "next/image";
 
 /**
@@ -92,6 +92,21 @@ export default function AdminSidebar() {
                             <FileText className={`mr-4 h-6 w-6 transition-transform duration-300 ${pathname === "/objave" ? "text-[var(--color-brand-blue)] scale-110" : "text-gray-500 group-hover:text-[var(--color-brand-blue)] group-hover:scale-110"}`} />
                             <span className="text-sm font-extrabold tracking-wider uppercase">
                                 Objave
+                            </span>
+                        </Link>
+
+                        {/* Playlists Link */}
+                        <Link
+                            href="/playlists"
+                            className={`group relative flex items-center w-full px-6 py-4 transition-all duration-300 border-l-4
+                            ${pathname === "/playlists"
+                                    ? "border-[var(--color-brand-blue)] bg-black/10 text-gray-900"
+                                    : "border-transparent text-gray-700 hover:bg-black/5 hover:text-gray-900 hover:border-[var(--color-brand-blue)]"
+                                }`}
+                        >
+                            <Library className={`mr-4 h-6 w-6 transition-transform duration-300 ${pathname === "/playlists" ? "text-[var(--color-brand-blue)] scale-110" : "text-gray-500 group-hover:text-[var(--color-brand-blue)] group-hover:scale-110"}`} />
+                            <span className="text-sm font-extrabold tracking-wider uppercase">
+                                Playliste
                             </span>
                         </Link>
                     </nav>
