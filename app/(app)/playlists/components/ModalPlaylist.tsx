@@ -8,6 +8,7 @@ import Image from "next/image";
 import imageCompression from "browser-image-compression";
 import { createClient } from "@/utils/supabase/client";
 import { createPlaylist, updatePlaylist } from "../actions";
+import { slugify } from "@/utils/slugify";
 
 interface ModalPlaylistProps {
     isOpen: boolean;
@@ -58,12 +59,7 @@ export default function ModalPlaylist({
         const newTitle = e.target.value;
         setTitle(newTitle);
         if (!initialData) {
-            setSlug(
-                newTitle
-                    .toLowerCase()
-                    .replace(/[^a-z0-9]+/g, "-")
-                    .replace(/(^-|-$)+/g, "")
-            );
+            setSlug(slugify(newTitle));
         }
     };
 
@@ -141,7 +137,10 @@ export default function ModalPlaylist({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!title || !slug) {
+        // Also cleans a hand-typed slug (e.g. "Šarena Salata" -> "sarena-salata")
+        const cleanSlug = slugify(slug);
+
+        if (!title || !cleanSlug) {
             toast.error("Molimo popunite obavezna polja");
             return;
         }
@@ -159,7 +158,7 @@ export default function ModalPlaylist({
                 const { error } = await updatePlaylist(
                     initialData.id,
                     title,
-                    slug,
+                    cleanSlug,
                     description,
                     tags,
                     finalImageUrl
@@ -169,7 +168,7 @@ export default function ModalPlaylist({
             } else {
                 const { error } = await createPlaylist(
                     title,
-                    slug,
+                    cleanSlug,
                     description,
                     tags,
                     finalImageUrl

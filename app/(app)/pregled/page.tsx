@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { Eye, Heart, FileText, ArrowUp, Calendar } from "lucide-react";
+import { Eye, Heart, FileText, ArrowUp, ArrowDown, Minus, Calendar } from "lucide-react";
 import DashboardChart from "@/components/DashboardChart";
 
 // Helper to format large numbers
@@ -27,7 +27,26 @@ export default async function DashboardPage() {
     // Calculate totals manually from the fetched rows
     const totalViews = statsData?.reduce((acc, curr) => acc + (curr.total_views || 0), 0) || 0;
     const totalLikes = statsData?.reduce((acc, curr) => acc + (curr.total_likes || 0), 0) || 0;
-    const totalPosts = statsData?.length || 0;
+
+    // Count posts directly: a new post has no post_stats row until its first view/like
+    const { count: postsCount, error: postsCountError } = await supabase
+        .from("posts")
+        .select("*", { count: "exact", head: true });
+
+    if (postsCountError) {
+        console.error("Error counting posts:", postsCountError);
+    }
+
+    const totalPosts = postsCount || 0;
+
+    // Last 30 days vs. the 30 days before, for the change shown on each card
+    const { periodStart, prevPeriodStart } = getPeriodBounds();
+
+    const [viewsChange, likesChange, postsChange] = await Promise.all([
+        getPeriodChange(supabase, "page_views", "viewed_at", periodStart, prevPeriodStart),
+        getPeriodChange(supabase, "likes", "created_at", periodStart, prevPeriodStart),
+        getPeriodChange(supabase, "posts", "created_at", periodStart, prevPeriodStart),
+    ]);
 
     // 2. Fetch Top 5 Posts
     const { data: topPosts, error: postsError } = await supabase
@@ -70,6 +89,7 @@ export default async function DashboardPage() {
                     title="Ukupno Pregleda"
                     value={formatNumber(totalViews)}
                     icon={Eye}
+                    change={viewsChange}
                     color="text-blue-600"
                     bgColor="bg-blue-50"
                 />
@@ -77,6 +97,7 @@ export default async function DashboardPage() {
                     title="Ukupno Lajkova"
                     value={formatNumber(totalLikes)}
                     icon={Heart}
+                    change={likesChange}
                     color="text-rose-600"
                     bgColor="bg-rose-50"
                 />
@@ -84,6 +105,7 @@ export default async function DashboardPage() {
                     title="Ukupno Objava"
                     value={formatNumber(totalPosts)}
                     icon={FileText}
+                    change={postsChange}
                     color="text-amber-600"
                     bgColor="bg-amber-50"
                 />
@@ -150,8 +172,51 @@ export default async function DashboardPage() {
     );
 }
 
+// Start of the last 30 days and of the 30 days before that, as ISO strings
+function getPeriodBounds() {
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    return {
+        periodStart: new Date(now - 30 * DAY_MS).toISOString(),
+        prevPeriodStart: new Date(now - 60 * DAY_MS).toISOString(),
+    };
+}
+
+type PeriodChange = {
+    current: number;
+    previous: number;
+} | null;
+
+// Counts rows in the last 30 days and in the 30 days before that
+async function getPeriodChange(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    table: string,
+    dateColumn: string,
+    periodStart: string,
+    prevPeriodStart: string
+): Promise<PeriodChange> {
+    const [current, previous] = await Promise.all([
+        supabase
+            .from(table)
+            .select("*", { count: "exact", head: true })
+            .gte(dateColumn, periodStart),
+        supabase
+            .from(table)
+            .select("*", { count: "exact", head: true })
+            .gte(dateColumn, prevPeriodStart)
+            .lt(dateColumn, periodStart),
+    ]);
+
+    if (current.error || previous.error) {
+        console.error(`Error fetching period change for ${table}:`, current.error || previous.error);
+        return null;
+    }
+
+    return { current: current.count || 0, previous: previous.count || 0 };
+}
+
 // Helper Component for Stats Cards
-function StatsCard({ title, value, icon: Icon, color, bgColor }: any) {
+function StatsCard({ title, value, icon: Icon, color, bgColor, change }: any) {
     return (
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
@@ -163,11 +228,41 @@ function StatsCard({ title, value, icon: Icon, color, bgColor }: any) {
                     <Icon className="w-6 h-6" />
                 </div>
             </div>
-            <div className="mt-4 flex items-center text-sm text-green-600 font-medium">
-                <ArrowUp className="w-4 h-4 mr-1" />
-                <span>+12%</span>
-                <span className="text-gray-400 font-normal ml-2">od prošlog mjeseca</span>
+            <ChangeIndicator change={change} />
+        </div>
+    );
+}
+
+function ChangeIndicator({ change }: { change: PeriodChange }) {
+    if (!change) {
+        return (
+            <div className="mt-4 text-sm text-gray-400">
+                Promjena trenutno nije dostupna
             </div>
+        );
+    }
+
+    const { current, previous } = change;
+
+    // No baseline to compare against, so show the raw count instead of a percentage
+    if (previous === 0) {
+        return (
+            <div className="mt-4 text-sm text-gray-500 font-medium">
+                {formatNumber(current)}
+                <span className="text-gray-400 font-normal ml-2">u zadnjih 30 dana</span>
+            </div>
+        );
+    }
+
+    const percent = Math.round(((current - previous) / previous) * 100);
+    const Arrow = percent > 0 ? ArrowUp : percent < 0 ? ArrowDown : Minus;
+    const colorClass = percent > 0 ? "text-green-600" : percent < 0 ? "text-red-600" : "text-gray-500";
+
+    return (
+        <div className={`mt-4 flex items-center text-sm font-medium ${colorClass}`}>
+            <Arrow className="w-4 h-4 mr-1" />
+            <span>{percent > 0 ? "+" : ""}{percent}%</span>
+            <span className="text-gray-400 font-normal ml-2">u odnosu na prethodnih 30 dana</span>
         </div>
     );
 }

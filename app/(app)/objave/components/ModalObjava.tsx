@@ -9,6 +9,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 import RichTextEditor from "@/components/RichTextEditor";
+import { slugify } from "@/utils/slugify";
 
 type ModalObjavaProps = {
     isOpen: boolean;
@@ -67,7 +68,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
         const val = e.target.value;
         setTitle(val);
         if (!initialData) { // Only auto-generate slug for new posts to avoid breaking links
-            setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
+            setSlug(slugify(val));
         }
     };
 
@@ -135,7 +136,10 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!title || !slug) {
+        // Also cleans a hand-typed slug (e.g. "Šarena Salata" -> "sarena-salata")
+        const cleanSlug = slugify(slug);
+
+        if (!title || !cleanSlug) {
             toast.error("Naslov i Slug su obavezni");
             return;
         }
@@ -148,7 +152,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
             // 1. Upload Image if exists (new file selected)
             if (file) {
                 const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}-${slug}.${fileExt}`;
+                const fileName = `${Date.now()}-${cleanSlug}.${fileExt}`;
                 const filePath = `${fileName}`;
 
                 // If editing and has old image, maybe delete old one? 
@@ -169,7 +173,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
 
             const postData = {
                 title,
-                slug,
+                slug: cleanSlug,
                 content,
                 description,
                 youtube_url: youtubeUrl || null,

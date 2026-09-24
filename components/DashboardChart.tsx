@@ -34,10 +34,11 @@ export default function DashboardChart() {
             if (error) {
                 console.error("Error fetching views:", error);
             } else if (views) {
-                // Format date to a readable string like "Mon 15"
+                // Format date to a readable string like "Mon 15".
+                // "T00:00:00" makes it parse as local midnight; a bare "YYYY-MM-DD" is read as UTC.
                 const formattedData = views.map((item: any) => ({
                     ...item,
-                    date_d: new Date(item.date_d).toLocaleDateString("en-US", {
+                    date_d: new Date(`${item.date_d}T00:00:00`).toLocaleDateString("en-US", {
                         weekday: "short",
                         day: "numeric",
                     }),
