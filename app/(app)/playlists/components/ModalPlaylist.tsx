@@ -98,8 +98,9 @@ export default function ModalPlaylist({
 
         try {
             const options = {
-                maxSizeMB: 1,
-                maxWidthOrHeight: 1920,
+                maxSizeMB: 0.2,
+                maxWidthOrHeight: 1280,
+                fileType: "image/webp",
                 useWebWorker: true,
             };
             const compressedFile = await imageCompression(file, options);
@@ -113,8 +114,7 @@ export default function ModalPlaylist({
 
     const uploadImage = async (file: File) => {
         try {
-            const fileExt = file.name.split(".").pop();
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
             const filePath = `${fileName}`;
 
             const { error: uploadError } = await supabase.storage

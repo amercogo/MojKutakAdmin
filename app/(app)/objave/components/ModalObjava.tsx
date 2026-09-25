@@ -82,6 +82,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
                 const options = {
                     maxSizeMB: 0.2, // Target 200KB
                     maxWidthOrHeight: 1280,
+                    fileType: "image/webp",
                     useWebWorker: true,
                 };
 
@@ -151,8 +152,7 @@ export default function ModalObjava({ isOpen, onClose, initialData, onSuccess }:
 
             // 1. Upload Image if exists (new file selected)
             if (file) {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}-${cleanSlug}.${fileExt}`;
+                const fileName = `${Date.now()}-${cleanSlug}.webp`;
                 const filePath = `${fileName}`;
 
                 // If editing and has old image, maybe delete old one? 
